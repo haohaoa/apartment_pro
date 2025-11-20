@@ -1,0 +1,20 @@
+{
+  "prompt": "Tôi muốn tìm căn hộ ở Quận Hải Châu, Đà Nẵng cho 2 người, tầm 5 đến 6 triệu, có wifi và chỗ để xe.",
+  "completion": {
+    "action": "searchApartment",
+    "parameters": {
+      "location": "Quận Hải Châu, Đà Nẵng",
+      "price_min": 5,
+      "price_max": 6,
+      "number_of_people": 2,
+      "bedrooms": 1,
+      "amenities": ["wifi", "chỗ để xe"]
+    },
+    "content": "Tôi đã tìm các căn hộ tại Quận Hải Châu, Đà Nẵng có giá từ 5 đến 6 triệu, phù hợp cho 2 người (1 phòng ngủ) và có tiện ích như wifi, chỗ để xe."
+  }
+}
+{"prompt": "Tôi cần thuê căn hộ ở Quận Bình Thạnh cho 3 người, giá khoảng 7 đến 8 triệu, có máy lạnh và gần siêu thị.", "completion": {"action": "searchApartment","parameters": {"location": "Quận Bình Thạnh","price_min": 6,"price_max": 8,"number_of_people": 3,"bedrooms": 2,"amenities": ["máy lạnh", "gần siêu thị"]},"content": "Tôi đã tìm các căn hộ ở Quận Bình Thạnh, TP.HCM giá từ 6 đến 8 triệu, phù hợp cho 3 người (2 phòng ngủ) có máy lạnh và gần siêu thị."}}
+{"prompt": "Tôi có thể thuê căn nào ở Đà Lạt cho 5 người, khoảng 9 triệu không? Cần có chỗ để xe và gần trung tâm.", "completion": {"action": "searchApartment","parameters": {"location": "Đà Lạt","price_min": 8,"price_max": 10,"number_of_people": 5,"bedrooms": 3,"amenities": ["chỗ để xe", "gần trung tâm"]},"content": "Tôi đã tìm các căn hộ ở Đà Lạt giá từ 8 đến 10 triệu cho nhóm 5 người (3 phòng ngủ), có chỗ để xe và gần trung tâm."}}
+{"prompt": "Cho tôi thuê căn hộ ở Huế khoảng 6 triệu cho 2 người, cần wifi và có ban công.", "completion": {"action": "searchApartment","parameters": {"location": "Huế","price_min": 5,"price_max": 7,"number_of_people": 2,"bedrooms": 1,"amenities": ["wifi", "ban công"]},"content": "Tôi đã tìm các căn hộ ở Huế giá từ 5 đến 7 triệu, phù hợp cho 2 người (1 phòng ngủ), có wifi và ban công."}}
+{"prompt": "Mình cần căn hộ ở Hà Nội cho 6 người ở chung, khoảng 10 triệu, ưu tiên gần chỗ làm và có thang máy.", "completion": {"action": "searchApartment","parameters": {"location": "Hà Nội","price_min": 9,"price_max": 10,"number_of_people": 6,"bedrooms": 3,"amenities": ["gần chỗ làm", "thang máy"]},"content": "Tôi đã tìm các căn hộ ở Hà Nội giá từ 9 đến 10 triệu, phù hợp cho 6 người (3 phòng ngủ), gần chỗ làm và có thang máy."}}
+{"prompt": "Tôi muốn thuê căn hộ ở Nha Trang cho 1 người, giá tầm 5 triệu, cần có máy giặt và wifi.", "completion": {"action": "searchApartment","parameters": {"location": "Nha Trang","price_min": 4,"price_max": 6,"number_of_people": 1,"bedrooms": 1,"amenities": ["máy giặt", "wifi"]},"content": "Tôi đã tìm các căn hộ ở Nha Trang giá từ 4 đến 6 triệu cho 1 người (1 phòng ngủ), có wifi và máy giặt."}}

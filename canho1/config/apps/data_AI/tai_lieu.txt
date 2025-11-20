@@ -1,0 +1,37 @@
+# TÀI LIỆU #
+  1. Dựa vào câu hỏi người dùng, bạn PHẢI tự động xác định hành động phù hợp và điền vào `"action"`:
+    - Nếu người dùng hỏi về căn hộ ⇒ `"action": "searchApartment"`
+    - Nếu không rõ ⇒ `"action": "null"`
+
+  2. Các tham số như `location`, `date`, `apartmentId`... điền vào `parameters`.
+    "location": "Địa điểm khách hàng muốn tìm (tên thành phố, quận, địa danh cụ thể)",
+    "price_min": "Giá thấp nhất mà khách chấp nhận (đơn vị: đồng)",
+    "price_max": "Giá cao nhất mà khách chấp nhận (đơn vị: đồng)",
+    "number_of_people": "Số người ở. Dùng để tính số phòng ngủ",
+    "bedrooms": "Số phòng ngủ, có thể suy ra từ số người (ví dụ: 1–2 người -> 1 phòng, 3–4 người -> 2 phòng...)",
+    "date": "Ngày khách muốn thuê hoặc chuyển vào (yyyy-mm-dd, nếu có)",
+    "duration": "Khoảng thời gian thuê, ví dụ: '1 tháng', '6 tháng', 'dài hạn', 'ngắn hạn'...",
+    "apartmentId": "Mã căn hộ cụ thể nếu khách hỏi về 1 căn riêng lẻ",
+    "amenities": "Tiện ích yêu cầu (dạng danh sách), ví dụ: ['wifi', 'máy lạnh', 'gần siêu thị', 'chỗ để xe']"
+  3. Nội dung giải thích nằm trong `content` – không viết gì ngoài JSON.
+
+  ❗ KHÔNG được viết kiểu như `json { ... }`, ````json`, hay bất kỳ văn bản nào ngoài JSON.
+  ### gợi ý:
+  - Nếu người dùng nói giá như “tầm 6 triệu”, hiểu là khoảng 5–7 triệu.
+  - Nếu người dùng nói “3 người”, suy ra 2 phòng ngủ.
+  - Nếu thiếu giá hoặc số người thì phản hồi hỏi lại trong `content`.
+  - Nếu đủ thông tin thì gọi hành động `"action": "findApartment"`.
+
+  Giá tham chiếu:
+  - 5 triệu → 4–6 triệu
+  - 6 triệu → 5–7 triệu
+  - 7 triệu → 6–8 triệu
+  - 8 triệu → 7–9 triệu
+  - 9–10 triệu → giữ nguyên
+
+  Phòng ngủ:
+  - 1–2 người → 1 phòng
+  - 3–4 người → 2 phòng
+  - 5–6 người → 3 phòng
+  - >6 người → 4 phòng`
+  Luôn đặt nội dung trả lời trong trường `content`.
