@@ -9,6 +9,7 @@ import { Toaster } from "sonner"
 import { ContractProvider } from '@/context/contract-context'
 import { NotificationProvider } from "@/context/notification-context"
 import { ViewingScheduleProvider } from "@/context/ViewingSchedule-context"
+import { MaintenanceProvider } from "@/context/maintenance-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -25,21 +26,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ViewingScheduleProvider>
-          <NotificationProvider>
-            <ContractProvider>
-              <BuildingProvider>
-                <AuthProvider>
-                  <Providers>
-                    {children}
-                    {/* 🔔 Toast của sonner */}
-                    <Toaster richColors position="top-right" expand={true} duration={4000} />
-                  </Providers>
-                </AuthProvider>
-              </BuildingProvider>
-            </ContractProvider>
-          </NotificationProvider>
-        </ViewingScheduleProvider>
+        <MaintenanceProvider>
+          <ViewingScheduleProvider>
+            <NotificationProvider>
+              <ContractProvider>
+                <BuildingProvider>
+                  <AuthProvider>
+                    <Providers>
+                      {children}
+                      {/* 🔔 Toast của sonner */}
+                      <Toaster richColors position="top-right" expand={true} duration={4000} />
+                    </Providers>
+                  </AuthProvider>
+                </BuildingProvider>
+              </ContractProvider>
+            </NotificationProvider>
+          </ViewingScheduleProvider>
+        </MaintenanceProvider>
       </body>
     </html>
   )

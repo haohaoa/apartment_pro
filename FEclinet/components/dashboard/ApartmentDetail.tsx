@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApartment } from "@/context/apartment-context";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -15,18 +15,17 @@ import {
     PlusCircle,
 } from "lucide-react";
 import Image from "next/image"
-export default function ApartmentDetail({
+import { useMaintenance } from "@/context/maintenance-context";
+; export default function ApartmentDetail({
     apartmentId,
 }: {
     apartmentId: string;
 }) {
     const router = useRouter();
     const { contracts } = useApartment();
-    console.log(apartmentId);
 
     // 🔍 Lấy đơn thuê (rental order) theo ID
     const order = contracts.find((item) => item.id === Number(apartmentId));
-
     if (!order) {
         return (
             <div className="p-8 text-center text-gray-500">
@@ -36,36 +35,44 @@ export default function ApartmentDetail({
     }
 
     const { apartment, payment = [], contract } = order;
-    console.log(contract);
+    // console.log(order);
+
 
     // 🧱 Dữ liệu sự cố giả
-    const [issues, setIssues] = useState([
-        {
-            id: 1,
-            title: "Máy lạnh bị rò nước",
-            status: "Đang xử lý",
-            created_at: "2025-10-12",
-        },
-        {
-            id: 2,
-            title: "Đèn phòng khách bị cháy",
-            status: "Hoàn thành",
-            created_at: "2025-09-29",
-        },
-    ]);
+    const [issues, setIssues] = useState(
+        order.apartment?.maintenance_requests?.map((m: any) => ({
+            id: m.id,
+            title: m.description,
+            status: m.status === "pending" ? "Chờ xử lý" : "Hoàn thành",
+            created_at: new Date(m.created_at).toLocaleDateString("vi-VN"),
+        })) || []
+    );
+
+    const { createmaintenance } = useMaintenance();
     const [newIssue, setNewIssue] = useState("");
 
-    const handleAddIssue = () => {
-        if (!newIssue.trim()) return;
-        const newItem = {
-            id: Date.now(),
-            title: newIssue,
-            status: "Chờ xử lý",
-            created_at: new Date().toISOString().split("T")[0],
-        };
-        setIssues([...issues, newItem]);
-        setNewIssue("");
+
+
+    const handleAddIssue = async () => {
+    if (!newIssue.trim()) return;
+
+    const newItem = {
+        title: newIssue,
+        apartment_id: Number(order.apartment_id),
+        status: "chờ xử lý",
+        created_at: new Date().toISOString(),
     };
+    // console.log(newItem);
+    
+    setIssues([...issues, newItem]);
+    setNewIssue("");
+
+    await createmaintenance({
+        apartment_id: Number(order.apartment_id),
+        description: newIssue
+    });
+};
+
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-8">
@@ -119,7 +126,7 @@ export default function ApartmentDetail({
                             <p className="text-gray-500">Chưa có sự cố nào.</p>
                         ) : (
                             <ul className="space-y-3">
-                                {issues.map((issue) => (
+                                {issues.map((issue: any) => (
                                     <li
                                         key={issue.id}
                                         className="border rounded-lg p-3 flex justify-between items-center bg-gray-50"
@@ -131,9 +138,7 @@ export default function ApartmentDetail({
                                             </p>
                                         </div>
                                         <span
-                                            className={`text-sm font-medium ${issue.status === "Hoàn thành"
-                                                ? "text-green-600"
-                                                : "text-yellow-600"
+                                            className={`text-sm font-medium ${issue.status === "Hoàn thành" ? "text-green-600" : "text-yellow-600"
                                                 }`}
                                         >
                                             {issue.status}

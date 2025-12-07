@@ -208,7 +208,7 @@ export const BuildingAPI = {
   update: (id, data) => api.put(`/update-building/${id}`, data),
   delete: (id) => api.delete(`/delete-building/${id}`),
   getById: (id) => api.get(`/get-building/${id}`),
-  getDashboard:() => api.get("/dashboard"),
+  getDashboard:() => api.get("/dashboard/admin"),
 };
 
 // Contract API

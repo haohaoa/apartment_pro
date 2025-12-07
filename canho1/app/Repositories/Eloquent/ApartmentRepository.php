@@ -56,10 +56,10 @@ class ApartmentRepository implements ApartmentRepositoryInterface
 
         // 💰 Lọc theo khoảng giá
         if (!empty($filters['price_min'])) {
-            $query->where('price', '>=', (float) $filters['price_min'] * 1_000_000);
+            $query->where('price', '>=', (float) $filters['price_min'] );
         }
         if (!empty($filters['price_max'])) {
-            $query->where('price', '<=', (float) $filters['price_max'] * 1_000_000);
+            $query->where('price', '<=', (float) $filters['price_max'] );
         }
 
         // 🛏️ Lọc theo số phòng ngủ (tìm trong mô tả)
@@ -93,26 +93,22 @@ class ApartmentRepository implements ApartmentRepositoryInterface
         return RentalOrder::select('id', 'user_id', 'apartment_id', 'status')
             ->with([
                 'apartment' => function ($q) {
-                    $q->select('id', 'title', 'address','price');
+                    $q->select('id', 'title', 'address', 'price');
                 },
+                'apartment.maintenanceRequests',
                 'apartment.images' => function ($q) {
-                    $q->select('id', 'apartment_id', 'image_url' );
+                    $q->select('id', 'apartment_id', 'image_url');
                 },
                 'payment' => function ($q) {
                     $q->select('*');
                 },
                 'Contract' => function ($q) {
-                    $q->select('id','rental_order_id', 'pdf_path','contract_number', 'start_date', 'end_date');
+                    $q->select('id', 'rental_order_id', 'pdf_path', 'contract_number', 'start_date', 'end_date');
                 },
             ])
             ->where('status', '!=', 'pending')
             ->where('user_id', $user_id)
             ->orderBy('created_at', 'desc')
             ->get();
-
     }
-
-
-
-
 }

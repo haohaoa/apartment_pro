@@ -193,5 +193,9 @@ export const NotificationAPI = {
   getall: () => api.get("/notifications"),
   markAllAsRead: () => api.post("/notifications/mark-all-read")
 };
+export const MaintenanceAPI = {
+  // getBy: () => api.get(`/maintenance/by-users/${id}`),
+  craete: (data) => api.post("/maintenance", data),
+};
 
 export default api;

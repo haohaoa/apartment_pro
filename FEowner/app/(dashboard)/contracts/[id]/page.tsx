@@ -512,7 +512,7 @@ export default function ContractDetailPage() {
                   </div>
                   <Button size="sm" variant="outline" asChild>
                     <a
-                      href={`${process.env.NEXT_PUBLIC_BDF}/${contract.pdf_path}`}
+                      href={`${process.env.NEXT_PUBLIC_URL_IMG}/${contract.pdf_path}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

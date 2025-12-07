@@ -5,6 +5,7 @@ use App\Mail\EmailViewingSchedule;
 use App\Models\Apartment;
 use App\Models\Building;
 use App\Models\ChatHistory;
+use App\Models\MaintenanceRequests;
 use App\Models\Payment;
 use App\Models\RentalOrder;
 use App\Models\ViewingSchedule;
@@ -472,7 +473,7 @@ class routeController extends Controller
             ], 500);
         }
     }
-     public function getScheduleAdmin()
+    public function getScheduleAdmin()
     {
         try {
 
@@ -774,6 +775,75 @@ class routeController extends Controller
         ]);
     }
 
+    public function getDashboardAdmin()
+    {
+        // Bỏ qua $id = auth()->id(); vì Admin truy vấn toàn bộ hệ thống
+
+        // 1. Tổng số Tòa nhà trong hệ thống
+        $totalBuildings = Building::count();
+
+        // 2. Tổng số Người dùng (Khách thuê và Chủ nhà)
+        $totalUsers = User::count();
+
+        // 3. Tổng số Căn hộ đã đăng ký (Giả định bạn có model Apartment)
+        $totalApartments = Apartment::count();
+
+        // 4. Lấy thông tin chi tiết về căn hộ (Đã thuê và Trống) cho toàn bộ hệ thống
+        // Giả định buildingService có hàm getAllApartments() hoặc tương đương để lấy tất cả
+        // Nếu service của bạn đã được thiết kế để trả về tổng hợp, có thể sử dụng query trực tiếp:
+        $occupiedUnits = Apartment::where('status', 'occupied')->count();
+        $vacantUnits = Apartment::where('status', 'vacant')->count();
+
+        // Cấu trúc lại rentedApartments để phù hợp với frontend (chỉ cần occupied/vacant tổng)
+        $rentedApartments = [
+            ['occupiedUnits' => $occupiedUnits, 'vacantUnits' => $vacantUnits]
+        ];
+
+
+        // 5. Hợp đồng gần đây (Toàn bộ hệ thống)
+        $recentContracts = RentalOrder::take(5)
+            ->latest() // Lấy 5 hợp đồng gần nhất
+            ->get();
+
+        // 6. Doanh thu hàng tháng (Toàn bộ hệ thống)
+        $monthlyRevenueRaw = Payment::whereYear('period_start', now()->year)
+            ->selectRaw('MONTH(period_start) as month, SUM(amount) as total')
+            ->groupByRaw('MONTH(period_start)')
+            ->orderByRaw('MONTH(period_start)')
+            ->get();
+
+        $monthlyRevenue = collect(range(1, 12))->mapWithKeys(function ($m) use ($monthlyRevenueRaw) {
+            return [$m => $monthlyRevenueRaw->firstWhere('month', $m)->total ?? 0];
+        });
+
+        // 7. Tăng trưởng so với tháng trước
+        $currentMonth = now()->month;
+        $lastMonth = now()->subMonth()->month;
+
+        $growth = 0;
+        if ($monthlyRevenue[$lastMonth] > 0) {
+            $growth = (($monthlyRevenue[$currentMonth] - $monthlyRevenue[$lastMonth])
+                / $monthlyRevenue[$lastMonth]) * 100;
+        }
+
+        $growth = round($growth, 2);
+
+        return response()->json([
+            // Chỉ số Admin
+            'totalBuildings' => $totalBuildings, // NEW: Tổng số tòa nhà
+            'totalUsers' => $totalUsers,         // NEW: Tổng số người dùng
+            'totalApartments' => $totalApartments, // NEW: Tổng số căn hộ
+
+            // Chỉ số Kế thừa
+            'rentedApartments' => $rentedApartments, // Tổng hợp căn hộ
+            'recentContracts' => $recentContracts,
+            'monthly_revenue' => $monthlyRevenue,
+            'current_month_growth' => $growth,
+
+            // Bỏ userWithBuildings vì nó là của Chủ tòa
+        ]);
+    }
+
     public function getallUser()
     {
         $U = auth()->user();
@@ -840,7 +910,7 @@ class routeController extends Controller
 
     public function updateUser(Request $request, $id)
     {
-        
+
         $U = auth()->user();
         try {
             $this->authorize('update', $U);
@@ -939,6 +1009,131 @@ class routeController extends Controller
             'message' => 'Tài khoản đã bị khóa.',
             'user' => $user
         ], 200);
+    }
+    public function createMaintenance(Request $request)
+    {
+        // Validate dữ liệu gửi lên
+        $validated = $request->validate([
+            'apartment_id' => 'required|exists:apartments,id',
+            'description' => 'required|string',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        // Upload file nếu có
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('maintenance', 'public');
+        }
+
+        // Tạo yêu cầu bảo trì
+        $maintenance = MaintenanceRequests::create([
+            'apartment_id' => $validated['apartment_id'],
+            'user_id' => auth()->id(), // Người gửi yêu cầu
+            'description' => $validated['description'],
+            'attachment' => $attachmentPath,
+            'status' => 'pending',
+        ]);
+
+        // Tạo thông báo cho chủ nhà của tòa nhà
+        $ownerId = $maintenance->apartment->building->owner_id;
+        $apartmentAddress = $maintenance->apartment->address;
+
+        $this->notification->create([
+            "user_id" => $ownerId,
+            "title" => "Yêu cầu bảo trì mới",
+            "message" => "Có yêu cầu bảo trì mới tại căn hộ: {$apartmentAddress}. Vui lòng kiểm tra và xử lý.",
+            "status" => "unread",
+            "url" => "/maintenance"
+        ]);
+
+        // Gửi thông báo SSE (nếu có)
+        pushNotification(
+            $ownerId,
+            "Có yêu cầu bảo trì mới tại căn hộ: {$apartmentAddress}.",
+            "info",
+            "/maintenance"
+        );
+
+        return response()->json([
+            'message' => 'Tạo yêu cầu bảo trì thành công!',
+            'data' => $maintenance
+        ], 201);
+    }
+
+    public function getByMaintenanceUser($id)
+    {
+        $notifications = MaintenanceRequests::where('apartment_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'message' => 'Danh sách thông báo',
+            'data' => $notifications
+        ]);
+    }
+    public function getByMaintenanceOwner()
+    {
+        $userId = auth()->id();
+        $notifications = MaintenanceRequests::whereHas('apartment', function ($query) use ($userId) {
+            $query->whereHas('building', function ($q) use ($userId) {
+                $q->where('owner_id', $userId);
+            });
+        })
+            ->orderBy('created_at', 'desc')
+            ->with([
+                'apartment' => function ($q) {
+                    $q->select('id', 'title', 'address');
+                },
+            ])
+            ->with([
+                'apartment.building.owner' => function ($q) {
+                    $q->select('id', 'name');
+                }
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'message' => 'Danh sách thông báo',
+            'data' => $notifications
+        ]);
+    }
+    public function markAsReadMaintenance($id)
+    {
+        // Tìm thông báo
+        $notification = MaintenanceRequests::find($id);
+
+        if (!$notification) {
+            return response()->json([
+                'message' => 'Thông báo không tồn tại'
+            ], 404);
+        }
+
+        // Cập nhật trạng thái
+        $notification->status = 'completed';
+        $notification->save();
+
+
+        // cập nhật thông báo
+        $this->notification->create([
+            "user_id" => $notification->user_id,
+            "title" => "bảo trì",
+            "message" => "Bạn đã xác nhận thông báo: {$notification->description}",
+            "status" => "unread",
+            "url" => "/dashboard"
+        ]);
+        // Gửi SSE (nếu FE đang lắng nghe)
+        pushNotification(
+            $notification->user_id,
+            "chủ tòa đã xác nhận thông báo: {$notification->description}",
+            "success",
+            "/dashboard"
+        );
+
+        return response()->json([
+            'message' => 'Thông báo đã được xác nhận',
+            'data' => $notification
+        ]);
     }
 
 }

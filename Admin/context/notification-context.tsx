@@ -32,51 +32,51 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         url: data.url ?? null,
     });
 
-    useEffect(() => {
-        const connectSSE = async () => {
-            const token = await getToken();
-            if (!token) return;
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-            const eventSource = new EventSource(`http://127.0.0.1:8001/api/notifications/stream?token=${token}`);
+    // useEffect(() => {
+    //     const connectSSE = async () => {
+    //         const token = await getToken();
+    //         if (!token) return;
+    //         const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    //         const eventSource = new EventSource(`http://127.0.0.1:8001/api/notifications/stream?token=${token}`);
 
-            // Khi có thông báo mới
-            eventSource.addEventListener("notification", (event) => {
-                const data = JSON.parse((event as MessageEvent).data);
-                console.log("📩 Nhận SSE:", data);
+    //         // Khi có thông báo mới
+    //         eventSource.addEventListener("notification", (event) => {
+    //             const data = JSON.parse((event as MessageEvent).data);
+    //             console.log("📩 Nhận SSE:", data);
 
-                // ✅ Thêm vào danh sách hiển thị dropdown
-                setListNotifications((prev) => [formatNotification(data), ...prev]);
+    //             // ✅ Thêm vào danh sách hiển thị dropdown
+    //             setListNotifications((prev) => [formatNotification(data), ...prev]);
 
 
-                // ✅ Hiển thị realtime toast
-                const type: ToastType = data.type ?? "info";
-                if (toast[type]) {
-                    toast[type](data.message, {
-                        duration: 20000,
-                        dismissible: true,
-                    });
-                } else {
-                    toast.info(data.message, {
-                        duration: 20000,
-                        dismissible: true,
-                    });
-                }
-            });
+    //             // ✅ Hiển thị realtime toast
+    //             const type: ToastType = data.type ?? "info";
+    //             if (toast[type]) {
+    //                 toast[type](data.message, {
+    //                     duration: 20000,
+    //                     dismissible: true,
+    //                 });
+    //             } else {
+    //                 toast.info(data.message, {
+    //                     duration: 20000,
+    //                     dismissible: true,
+    //                 });
+    //             }
+    //         });
 
-            // Heartbeat
-            eventSource.addEventListener("heartbeat", () => {
-                console.log("💓 SSE vẫn hoạt động");
-            });
+    //         // Heartbeat
+    //         eventSource.addEventListener("heartbeat", () => {
+    //             console.log("💓 SSE vẫn hoạt động");
+    //         });
 
-            eventSource.onerror = (err) => {
-                console.error("[SSE] Lỗi kết nối:", err);
-                eventSource?.close();
-                setTimeout(connectSSE, 3000);
-            };
-        };
+    //         eventSource.onerror = (err) => {
+    //             console.error("[SSE] Lỗi kết nối:", err);
+    //             eventSource?.close();
+    //             setTimeout(connectSSE, 3000);
+    //         };
+    //     };
 
-        connectSSE();
-    }, []);
+    //     connectSSE();
+    // }, []);
 
 
     // Giả sử bạn đã import Notification và NotificationAPI

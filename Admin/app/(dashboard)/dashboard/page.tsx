@@ -1,16 +1,16 @@
 "use client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Home, Users, Wrench, TrendingUp, DollarSign } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { RevenueChart } from "@/components/revenue-chart"
-import Link from "next/link"
-import { useBuilding } from "@/context/building-context"
-import { useEffect } from "react"
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2, Home, Users, Wrench, TrendingUp, DollarSign } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { RevenueChart } from "@/components/revenue-chart";
+import Link from "next/link";
+import { useBuilding } from "@/context/building-context";
+import { useEffect } from "react";
 
-
+// Mock data
 const maintenanceRequests = [
   {
     id: "BT001",
@@ -36,57 +36,68 @@ const maintenanceRequests = [
     priority: "low",
     date: "13/01/2024",
   },
-]
+];
 
 export default function DashboardPage() {
   const { getDashboard, dashboard } = useBuilding();
+
   useEffect(() => {
     const fetchData = async () => {
       const success = await getDashboard();
       if (success) {
-        console.log("Dashboard data đã load:", dashboard);
+        console.log("Dashboard data loaded:", dashboard);
       } else {
-        console.log("Lấy dashboard thất bại");
+        console.log("Load dashboard failed");
       }
     };
 
     fetchData();
   }, []);
+
+  // Tính toán Dashboard
+  const occupied = dashboard?.rentedApartments?.[0]?.occupiedUnits ?? 0;
+  const vacant = dashboard?.rentedApartments?.[0]?.vacantUnits ?? 0;
+  const totalUnits = occupied + vacant;
+
+  const occupancyRate =
+    totalUnits > 0 ? ((occupied / totalUnits) * 100).toFixed(1) : 0;
+
   const stats = [
     {
-      title: "Tổng số tòa",
-      value: dashboard?.userWithBuildings,
+      title: "Tổng số Tòa nhà",
+      value: dashboard?.totalBuildings ?? 0,
       icon: Building2,
-      description: "Tòa nhà đang hoạt động",
+      description: "Tổng số tòa nhà đang được quản lý",
     },
     {
-      title: "Căn đã thuê",
-      value: dashboard?.rentedApartments.reduce((sum, a) => sum + (a.occupiedUnits ?? 0), 0),
+      title: "Tổng số Người dùng",
+      value: dashboard?.totalUsers ?? 0,
       icon: Users,
-      description: "Đang được thuê",
+      description: "Tổng số Chủ nhà & Khách thuê",
     },
     {
-      title: "Căn trống",
-      value: dashboard?.rentedApartments.reduce((sum, a) => sum + (a.vacantUnits ?? 0), 0),
+      title: "Tổng số Căn hộ",
+      value: dashboard?.totalApartments ?? 0,
       icon: Home,
-      description: "Sẵn sàng cho thuê",
+      description: `Tỷ lệ lấp đầy: ${occupancyRate}%`,
     },
     {
-      title: "Tăng trưởng tháng trước",
-      value: `${dashboard?.current_month_growth}%`,
+      title: "Tăng trưởng Doanh thu",
+      value: `${dashboard?.current_month_growth ?? 0}%`,
       icon: TrendingUp,
-      description: "So với tháng trước",
+      description: "So với tháng trước (Toàn hệ thống)",
     },
-  ]
+  ];
 
   if (!dashboard) {
     return <div>Đang tải dữ liệu...</div>;
   }
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Tổng quan</h2>
-        <p className="text-muted-foreground">Tổng quan hệ thống quản lý căn hộ của bạn</p>
+        <h2 className="text-3xl font-bold tracking-tight">Tổng quan Quản trị viên</h2>
+        <p className="text-muted-foreground">Tổng quan toàn hệ thống và các chỉ số hoạt động chính</p>
       </div>
 
       {/* Stats Cards */}
@@ -109,19 +120,18 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Tổng quan doanh thu</CardTitle>
+            <CardTitle>Tổng quan Doanh thu Hệ thống</CardTitle>
             <CardDescription>Doanh thu hàng tháng trong 12 tháng qua</CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            {/* Truyền dữ liệu từ dashboard */}
             <RevenueChart monthlyRevenue={dashboard.monthly_revenue} />
           </CardContent>
         </Card>
 
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Tháng này</CardTitle>
-            <CardDescription>Hiệu suất tháng hiện tại</CardDescription>
+            <CardTitle>Hiệu suất Tháng này</CardTitle>
+            <CardDescription>Các chỉ số tài chính chính</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -131,22 +141,33 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium">Tổng doanh thu</p>
                   <p className="text-2xl font-bold">
                     {new Intl.NumberFormat("vi-VN").format(
-                      Number(dashboard?.monthly_revenue?.[new Date().getMonth() + 1] ?? 0)
-                    )} VND
+                      Number(
+                        dashboard?.monthly_revenue?.[
+                          new Date().getMonth() + 1
+                        ] ?? 0
+                      )
+                    )}{" "}
+                    VND
                   </p>
-
                 </div>
               </div>
+
               <div className="flex items-center">
                 <TrendingUp
-                  className={`h-4 w-4 ${dashboard?.current_month_growth >= 0 ? "text-green-600" : "text-red-600"
-                    }`}
+                  className={`h-4 w-4 ${
+                    dashboard?.current_month_growth >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
                 />
                 <div className="ml-2">
                   <p className="text-sm font-medium">Tăng trưởng</p>
                   <p
-                    className={`text-lg font-semibold ${dashboard?.current_month_growth >= 0 ? "text-green-600" : "text-red-600"
-                      }`}
+                    className={`text-lg font-semibold ${
+                      dashboard?.current_month_growth >= 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
                   >
                     {dashboard?.current_month_growth >= 0 ? "+" : ""}
                     {dashboard?.current_month_growth ?? 0}%
@@ -156,26 +177,29 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-
       </div>
 
       {/* Recent Activity */}
       <div className="grid gap-4 md:grid-cols-2">
+        {/* Recent Contracts */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Hợp đồng gần đây</CardTitle>
+
+            {/* Chỉ 1 child khi dùng asChild */}
             <Button variant="outline" size="sm" asChild>
               <Link href="/contracts">Xem tất cả</Link>
             </Button>
           </CardHeader>
+
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Khách thuê</TableHead>
-                  <TableHead>Căn hộ</TableHead>
+                  <TableHead>ID HĐ</TableHead>
+                  <TableHead>ID Căn hộ</TableHead>
                   <TableHead>Trạng thái</TableHead>
-                  <TableHead>Số tiền</TableHead>
+                  <TableHead>Thời hạn</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -196,13 +220,17 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Recent Maintenance */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Yêu cầu bảo trì</CardTitle>
+            <CardTitle>Yêu cầu bảo trì (Gần đây)</CardTitle>
+
+            {/* Không comment bên trong */}
             <Button variant="outline" size="sm" asChild>
               <Link href="/maintenance">Xem tất cả</Link>
             </Button>
           </CardHeader>
+
           <CardContent>
             <Table>
               <TableHeader>
@@ -213,6 +241,7 @@ export default function DashboardPage() {
                   <TableHead>Ngày</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {maintenanceRequests.map((request) => (
                   <TableRow key={request.id}>
@@ -224,8 +253,8 @@ export default function DashboardPage() {
                           request.priority === "high"
                             ? "destructive"
                             : request.priority === "medium"
-                              ? "default"
-                              : "secondary"
+                            ? "default"
+                            : "secondary"
                         }
                       >
                         {request.priority}
@@ -240,5 +269,5 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

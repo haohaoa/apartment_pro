@@ -16,6 +16,7 @@ import { ClickProvider } from "@/context/handleClick-context"
 import { ToastContainer } from 'react-toastify';
 import { NotificationProvider } from "@/context/notification-context"
 import { Toaster } from "sonner"
+import { MaintenanceProvider } from "@/context/maintenance-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -32,42 +33,44 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <NotificationProvider>
-          <ClickProvider>
-            <BookingProvider>
-              <ApartmentProvider>
-                <AIChatProvider>
-                  <AuthProvider>
-                    <AppProvider>
-                      <Header />
-                      <main className="flex-1 pt-16">
-                        {" "}
-                        {/* Add padding-top equal to header height */}
-                        {children}
-                      </main>
-                      <Toaster richColors position="top-right" expand={true} duration={4000} />
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={3000}
-                        hideProgressBar={false}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                      />
-                      <ChatPanel />
-                      <BookingPanel />
-                      <FloatingActionButtons />
-                      <Footer />
-                    </AppProvider>
-                  </AuthProvider>
-                </AIChatProvider>
-              </ApartmentProvider>
-            </BookingProvider>
-          </ClickProvider>
-        </NotificationProvider>
+        <MaintenanceProvider>
+          <NotificationProvider>
+            <ClickProvider>
+              <BookingProvider>
+                <ApartmentProvider>
+                  <AIChatProvider>
+                    <AuthProvider>
+                      <AppProvider>
+                        <Header />
+                        <main className="flex-1 pt-16">
+                          {" "}
+                          {/* Add padding-top equal to header height */}
+                          {children}
+                        </main>
+                        <Toaster richColors position="top-right" expand={true} duration={4000} />
+                        <ToastContainer
+                          position="top-right"
+                          autoClose={3000}
+                          hideProgressBar={false}
+                          newestOnTop={false}
+                          closeOnClick
+                          rtl={false}
+                          pauseOnFocusLoss
+                          draggable
+                          pauseOnHover
+                        />
+                        <ChatPanel />
+                        <BookingPanel />
+                        <FloatingActionButtons />
+                        <Footer />
+                      </AppProvider>
+                    </AuthProvider>
+                  </AIChatProvider>
+                </ApartmentProvider>
+              </BookingProvider>
+            </ClickProvider>
+          </NotificationProvider>
+        </MaintenanceProvider>
       </body>
     </html>
   )

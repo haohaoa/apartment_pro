@@ -41,6 +41,6 @@ class Apartment extends Model
 
     public function maintenanceRequests()
     {
-        return $this->hasMany(MaintenanceRequests::class);
+        return $this->hasMany(MaintenanceRequests::class, 'apartment_id');
     }
 }

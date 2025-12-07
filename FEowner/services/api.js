@@ -226,6 +226,10 @@ export const ViewscheduleAPI= {
   delete: (id) => api.delete(`/cancel-schedule/${id}`),
 }
 
+export const MaintenanceAPI = {
+  getBy: () => api.get(`/maintenance/by-owner`),
+  markAsRead: (id) => api.post(`/markAsReadMaintenance/${id}`),
+};
 // =======================
 // 🧾 6. Xuất instance chính
 // =======================

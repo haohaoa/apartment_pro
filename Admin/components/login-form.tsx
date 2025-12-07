@@ -130,12 +130,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isLoading ? "Đang đăng nhập..." : "Đăng Nhập"}
             </Button>
-
-            <div className="text-center">
-                <Button variant="link" className="text-sm text-muted-foreground hover:text-foreground">
-                    Quên mật khẩu?
-                </Button>
-            </div>
+           
         </form>
     )
 }

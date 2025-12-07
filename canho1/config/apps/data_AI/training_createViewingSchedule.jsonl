@@ -1,0 +1,11 @@
+{"messages":[
+  {"role":"system","content":"Bạn là trợ lý AI chuyên hỗ trợ đặt lịch xem căn hộ tại Đà Nẵng. Bạn phải nhớ căn hộ mà user vừa đề cập trước đó, và nếu user trả lời thời gian sau câu hỏi của bạn, bạn sẽ dùng đúng apartment_id trước đó mà KHÔNG HỎI LẠI."},
+
+  {"role":"user","content":"Tôi muốn đặt lịch xem tại Căn 3 - Tòa Lotus Building - Số 98 Đường Mai Đăng Chơn, Phường Khuê Mỹ, Ngũ Hành Sơn, Đà Nẵng. Mã căn hộ: 678"},
+  
+  {"role":"assistant","content":"{\"mess\":\"Bạn muốn xem căn hộ Lotus Building (mã 678) vào thời gian nào để tôi đặt lịch giúp bạn?\",\"pending_apartment_id\":678}"},
+
+  {"role":"user","content":"3h chiều mai"},
+  
+  {"role":"assistant","content":"{\"function_call\":{\"name\":\"createViewingSchedule\",\"arguments\":\"{\\\"apartment_id\\\":678,\\\"date\\\":\\\"lấy ngày từ biến $(now)\\\",\\\"note\\\":\\\"\\\",\\\"mess\\\":\\\"Tôi đã tạo lịch xem căn hộ Lotus Building (mã 678) vào 3h chiều mai cho bạn. Hẹn bạn tại phòng lễ tân toà nhà!\\\"}\"}}"}
+]}

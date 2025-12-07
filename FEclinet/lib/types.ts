@@ -183,3 +183,17 @@ export interface LandlordData {
   address: string
   phone: string
 }
+// Kiểu cho một thông báo
+export interface maintenance {
+  id: number;
+  apartment_id: number;
+  user_id: number;
+  description: string;
+  attachment: string | null; // vì có thể null
+  status: 'pending' | 'completed' | 'read'; // nếu biết trước các giá trị status
+  note: string | null;
+  created_at: string; // ISO string
+  updated_at: string;
+}
+
+

@@ -49,6 +49,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/bookings-store', [BookingController::class, 'store']);
     //thanh toán
     Route::get('/mark-as-paid/{id}', [routeController::class, 'markAsPaid']);
+    //bảo trì
+    Route::post('/maintenance', [routeController::class, 'createMaintenance']);
+    Route::get('/maintenance/by-users/{id}', [routeController::class, 'getByMaintenanceUser']);
+
 });
 ///owner
 Route::post('/register-owner', [AuthController::class, 'registerOwner']);
@@ -93,6 +97,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/confirm-payment/{id}', [routeController::class, 'confirmPayment']);
     //dashboard
     Route::get('/dashboard', [routeController::class, 'getDashboard']);
+    //bảo trì
+    Route::get('/maintenance/by-owner', [routeController::class, 'getByMaintenanceOwner']);
+    Route::post('/markAsReadMaintenance/{id}', [routeController::class, 'markAsReadMaintenance']);
+
 });
 Route::post('/test-search', [Chatbox_Controller::class, 'testSearch']);
 Route::middleware('auth:api')->group(function () {
@@ -102,4 +110,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-user/{id}', [routeController::class, 'updateUser']);
     Route::get('/user/{id}', [routeController::class, 'getByIdUser']);
     Route::put('block-user/{id}', [routeController::class, 'blockUser']);
+    //
+    Route::get('/dashboard/admin', [routeController::class, 'getDashboardAdmin']);
 });

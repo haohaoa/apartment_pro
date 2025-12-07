@@ -93,7 +93,8 @@ class ChatBoxProController extends Controller
             // 'thieu_nguoi.jsonl',
             // 'thieu_vi_tr.jsonl',
             // 'thong_tin_day_du.jsonl'
-            'ai_pro2.txt'
+            'ai_pro3.jsonl',
+            'training_createViewingSchedule.jsonl',
         ];
 
         foreach ($systemMessageFiles as $file) {
@@ -334,12 +335,14 @@ class ChatBoxProController extends Controller
 
         // Lọc theo giá
         if (!empty($filters['price_min'])) {
-            $query->where('apartments.price', '>=', (float) $filters['price_min'] * 1_000_000);
+            $query->where('apartments.price', '>=', (float) $filters['price_min']);
         }
         if (!empty($filters['price_max'])) {
-            $query->where('apartments.price', '<=', (float) $filters['price_max'] * 1_000_000);
+            $query->where('apartments.price', '<=', (float) $filters['price_max']);
         }
-
+        if (!empty($filters['bedrooms'])) {
+            $query->where('apartments.description', 'LIKE', '%' . $filters['bedrooms'] . ' phòng ngủ' . '%');
+        }
         // Lọc theo khoảng cách
         if (!is_null($lat) && !is_null($lng)) {
             $query->having('distance', '<=', $radius)
@@ -421,6 +424,7 @@ class ChatBoxProController extends Controller
             if (strtotime($date) < strtotime(date('Y-m-d'))) {
                 return response()->json([
                     'success' => false,
+                    'date'=> $date,
                     'message' => 'Ngày đặt lịch phải từ hôm nay trở đi!',
                 ], 422);
             }
@@ -599,7 +603,7 @@ class ChatBoxProController extends Controller
                 'message' => 'Đã hủy lịch xem phòng thành công!',
                 'data' => $schedule,
                 'history' => $this->getUserHistory($userId),
-              
+
             ], 200);
 
         } catch (\Throwable $e) {
